@@ -1,17 +1,20 @@
 "use client";
-import GenerateLinkToken from './component/Link/GenerateLinkToken';
-import LaunchLink from './component/Link/LaunchLink';
-import PlaidProvider from './state_management/plaid/PlaidProvider';
+import { useContext } from 'react';
+import RenderTransactions from './containers/plaid/GenerateTransactions';
+import GenerateLinkToken from './containers/plaid/GenerateLinkToken';
+import LaunchLink from './containers/plaid/LaunchLink';
+import PlaidProvider from './state/plaid/PlaidProvider';
+import PlaidLinkContext from './state/plaid/plaidLinkContext';
+import ConnectToBank from './containers/plaid/ConnectToBank';
 
 function App() {
-
+  const { linkSuccess, isItemAccess, isPaymentInitiation } = useContext(PlaidLinkContext);
   return (
     <div className="App">
       <PlaidProvider>
-        <GenerateLinkToken />
-        <LaunchLink />
+        <ConnectToBank />
       </PlaidProvider>
-    </div>
+    </div >
   );
 }
 

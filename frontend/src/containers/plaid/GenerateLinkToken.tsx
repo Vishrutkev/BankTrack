@@ -1,7 +1,8 @@
 
 import { useCallback, useContext, useEffect } from 'react'
 import { getInfo, generateLinkToken } from '../../fetch/plaid/generateToken'
-import PlaidLinkContext from '../../state_management/plaid/plaidLinkContext';
+import PlaidLinkContext from '../../state/plaid/plaidLinkContext';
+import { PlaidItem } from '../../state/plaid/types/token';
 
 const GenerateLinkToken = () => {
     const { linkToken, isPaymentInitiation, dispatch } = useContext(PlaidLinkContext);
@@ -9,8 +10,8 @@ const GenerateLinkToken = () => {
     const fetchInfo = useCallback(() => {
         let paymentInitiation: boolean = false;
         getInfo()
-            .then(async (response) => {
-                const data = await response.json();
+            .then(async (data: PlaidItem) => {
+                //const data = await response.json();
 
                 paymentInitiation = data.products.includes("payment_initiation");
 
@@ -21,7 +22,6 @@ const GenerateLinkToken = () => {
                         isPaymentInitiation: paymentInitiation,
                     },
                 });
-                console.log(data);
             })
             .catch(error => {
                 console.error("Error fetching info:", error);
@@ -34,8 +34,7 @@ const GenerateLinkToken = () => {
         const endpoint = isPaymentInitiation ? '/api/create_link_token_for_payment' : '/api/create_link_token';
 
         generateLinkToken(endpoint)
-            .then(async data => {
-                const token = await data.json();
+            .then(async token => {
                 dispatch({ type: "SET_STATE", state: { linkToken: token.link_token } });
                 localStorage.setItem("link_token", token.link_token);
             })
@@ -68,7 +67,7 @@ const GenerateLinkToken = () => {
     }, [dispatch, fetchInfo, fetchLinkToken]);
 
     return (
-        <div>{linkToken}</div>
+        <div></div>
     )
 }
 

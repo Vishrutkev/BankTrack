@@ -1,12 +1,12 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useState, useContext } from 'react'
 import { usePlaidLink } from "react-plaid-link";
 import Button from "plaid-threads/Button";
 import { exchangePublicTokenForAccessToken } from "../../fetch/plaid/generateToken";
-import PlaidLinkContext from '../../state_management/plaid/plaidLinkContext';
+import PlaidLinkContext from '../../state/plaid/plaidLinkContext';
+import { AccessTokenResponse } from '../../state/plaid/types/token';
 
-const Link = () => {
-    const { linkToken, isPaymentInitiation, dispatch } = useContext(PlaidLinkContext);
-
+const LaunchLink = () => {
+    const { linkToken, isPaymentInitiation, dispatch, isItemAccess, linkSuccess } = useContext(PlaidLinkContext);
     const onSuccess = React.useCallback(
         (public_token: string) => {
             // 'payment_initiation' products do not require the public_token to be exchanged for an access_token.
@@ -14,9 +14,7 @@ const Link = () => {
                 dispatch({ type: "SET_STATE", state: { isItemAccess: false } });
             } else {
                 exchangePublicTokenForAccessToken(public_token)
-                    .then(async (response: any) => {
-                        const data = await response.json();
-                        console.log(data);
+                    .then(async (data: AccessTokenResponse) => {
                         dispatch({
                             type: "SET_STATE",
                             state: {
@@ -65,12 +63,13 @@ const Link = () => {
         }
     }, [ready, open, isOauth]);
 
-    return (
-        <Button type="button" large onClick={() => open()} disabled={!ready}>
+    return (<div>
+        {!linkSuccess && <Button type="button" large onClick={() => open()} disabled={!ready}>
             Launch Link
-        </Button>
+        </Button>}
+    </div>
 
     );
 };
 
-export default Link;
+export default LaunchLink;

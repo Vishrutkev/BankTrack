@@ -1,82 +1,65 @@
+import {
+  PlaidItem,
+  PlaidLinkToken,
+  AccessTokenResponse,
+} from "../../state/plaid/types/token";
 import { BASE_URL } from "../constants";
-// const generateToken = useCallback(
-//     async (isPaymentInitiation: boolean) => {
-//       const path = isPaymentInitiation
-//         ? `${BASE_URL}/api/create_link_token_for_payment`
-//         : `${BASE_URL}/api/create_link_token`;
-//       try {
-//         const response = await fetch(path, {
-//           method: "POST",
-//         });
-//         if (!response.ok) {
-//           console.error("HTTP error:", response.status, response.statusText);
-//           return;
-//         }
-//         const data = await response.json();
-//         if (data.error) {
-//           console.error("API error:", data.error);
-//           return;
-//         }
-//         //dispatch({ type: "SET_STATE", state: { linkToken: data.link_token } });
-//         localStorage.setItem("link_token", data.link_token);
 
-//       } catch (error) {
-//         console.error("Fetch error:", error);
-//       }
-//     },
-//     []
-//   );
-
-// const getInfo = useCallback(async () => {
-//     const response = await fetch(`${BASE_URL}/api/info`, {
-//       method: "POST",
-//     });
-//     if (!response.ok) {
-//       dispatch({ type: "SET_STATE", state: { backend: false } });
-//       return { paymentInitiation: false };
-//     }
-//     const data = await response.json();
-//     const paymentInitiation: boolean =
-//       data.products.includes("payment_initiation");
-//     dispatch({
-//       type: "SET_STATE",
-//       state: {
-//         products: data.products,
-//         isPaymentInitiation: paymentInitiation,
-//       },
-//     });
-//     return { paymentInitiation };
-//   }, [dispatch]);
-
-const getInfo = () => {
-  return new Promise<any>((resolve, reject) => {
+const getInfo = (): Promise<PlaidItem> => {
+  return new Promise<PlaidItem>((resolve, reject) => {
     fetch(`${BASE_URL}/api/info`, { method: "POST" })
-      .then((res) => resolve(res))
-      .catch((_: any) => reject());
+      .then((res) => {
+        if (!res.ok) {
+          reject(new Error(`HTTP error! status: ${res.status}`));
+        }
+        return res.json();
+      })
+      .then((data) => resolve(data))
+      .catch((error) => {
+        console.error("Fetch error:", error);
+        reject(error);
+      });
   });
 };
 
-const generateLinkToken = (endpoint: string) => {
-  return new Promise<any>((resolve, reject) => {
+const generateLinkToken = (endpoint: string): Promise<PlaidLinkToken> => {
+  return new Promise<PlaidLinkToken>((resolve, reject) => {
     fetch(BASE_URL + endpoint, { method: "POST" })
       .then((res) => {
-        resolve(res);
+        if (!res.ok) {
+          reject(new Error(`HTTP error! status: ${res.status}`));
+        }
+        return res.json();
       })
-      .catch((_: any) => reject());
+      .then((data) => resolve(data))
+      .catch((error) => {
+        console.error("Fetch error:", error);
+        reject(error);
+      });
   });
 };
 
-const exchangePublicTokenForAccessToken = (public_token: string | null) => {
-  return new Promise(async (resolve, reject) => {
-    await fetch(BASE_URL + "/api/set_access_token", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-      },
-      body: `public_token=${public_token}`,
-    })
-      .then((res) => resolve(res))
-      .catch((_: any) => reject());
+const exchangePublicTokenForAccessToken = (
+  public_token: string | null
+): Promise<AccessTokenResponse> => {
+  return new Promise<AccessTokenResponse>(async (resolve, reject) => {
+    try {
+      const res = await fetch(BASE_URL + "/api/set_access_token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        },
+        body: `public_token=${public_token}`,
+      });
+      if (!res.ok) {
+        reject(new Error(`HTTP error! status: ${res.status}`));
+      }
+      const data = await res.json();
+      resolve(data);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      reject(error);
+    }
   });
 };
 
