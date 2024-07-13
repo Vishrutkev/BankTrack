@@ -12,15 +12,17 @@
   "description": "",
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.4.5",
-    "plaid": "^26.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "ejs": "2.5.x",
+    "express": "^4.19.2",
+    "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^9.0.2",
     "moment": "2.22.x",
+    "mongoose": "^8.4.5",
     "nodemon": "^2.0.20",
-    "uuid": "^9.0.0"
+    "plaid": "^26.0.0",
+    "uuid": "^9.0.0",
+    "winston": "^3.13.1"
   }
 }

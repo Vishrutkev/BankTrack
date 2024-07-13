@@ -1,7 +1,7 @@
 
 import { useCallback, useContext, useEffect } from 'react'
 import { getInfo, generateLinkToken } from '../../fetch/plaid/generateToken'
-import PlaidLinkContext from '../../state/plaid/plaidLinkContext';
+import PlaidLinkContext from '../../state/plaid/plaidLinkContext'
 import { PlaidItem } from '../../state/plaid/types/token';
 
 const GenerateLinkToken = () => {
