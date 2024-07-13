@@ -8,6 +8,5 @@ require("./startup/routes")(app);
 require("./startup/logging")();
 
 app.listen(APP_PORT, () => {
-  console.log("Starting the server....");
   winston.info(`Server is running on http://localhost:${APP_PORT}`);
 });
