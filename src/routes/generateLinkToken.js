@@ -74,6 +74,18 @@ router.post(
   })
 );
 
+router.get("/api/identity", function (request, response, next) {
+  Promise.resolve()
+    .then(async function () {
+      const identityResponse = await client.identityGet({
+        access_token: ACCESS_TOKEN,
+      });
+      prettyPrintResponse(identityResponse);
+      response.json({ identity: identityResponse.data.accounts });
+    })
+    .catch(next);
+});
+
 router.post(
   "/api/create_link_token",
   asyncMiddleware((request, response, next) => {
