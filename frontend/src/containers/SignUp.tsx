@@ -18,6 +18,10 @@ import BankTrackLogo from '../assets/banktrack_logo.png';
 import PersonIcon from '@mui/icons-material/Person';
 import signInCover from '../assets/signInCover.jpg';
 import { useState } from 'react';
+import { signUp } from '../fetch/auth';
+import { Alert, Snackbar } from '@mui/material';
+import { Navigate } from 'react-router-dom';
+import Loading from '../component/Loading';
 
 function Copyright(props: any) {
     return (
@@ -34,14 +38,16 @@ function Copyright(props: any) {
 
 const SignUp = () => {
     const [showPassword, setShowPassword] = useState(false);
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [name, setName] = useState<string>('');
+    const [error, setError] = useState<string>('');
+    const [open, setOpen] = useState(false);
+    const [redirect, setRedirect] = useState(false);
+    const [successOpen, setSuccessOpen] = useState(false);
     const [formData, setFormData] = useState<any>({
         name: '',
         email: '',
         password: ''
     });
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (event: any) => {
         const { name, value } = event.target;
@@ -53,10 +59,27 @@ const SignUp = () => {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log({
-            formData
-        });
-        setFormData({ name: '', email: '', password: '' });
+        setLoading(true);
+        signUp(formData.name, formData.email, formData.password)
+            .then(async (res: any) => {
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    setError(errorData || 'SignUp failed');
+                    throw new Error(errorData || 'SignUp failed');
+                }
+                const responseData = await res.json();
+                setOpen(false);
+                setSuccessOpen(true);
+                setTimeout(() => {
+                    setRedirect(true);
+                    setLoading(false);
+                }, 1000);
+                setFormData({ name: '', email: '', password: '' });
+            })
+            .catch((error) => {
+                setOpen(true);
+                console.error('Error:', error);
+            });
     };
 
     const handleClickShowPassword = () => {
@@ -71,6 +94,7 @@ const SignUp = () => {
         <>
             <Container component="main" maxWidth="xl" disableGutters sx={{ height: '100vh' }}>
                 <CssBaseline />
+                {loading && <Loading />}
                 <Grid container sx={{ height: '100%' }}>
                     <Grid
                         item
@@ -198,6 +222,17 @@ const SignUp = () => {
                             </Grid>
                         </Box>
                         <Copyright sx={{ position: 'absolute', bottom: 16 }} />
+                        {redirect && <Navigate to="/dashboard" />}
+                        <Snackbar open={successOpen} autoHideDuration={2000} onClose={() => setSuccessOpen(false)}>
+                            <Alert onClose={() => setSuccessOpen(false)} severity="success" sx={{ width: '100%' }}>
+                                Login successful! Redirecting...
+                            </Alert>
+                        </Snackbar>
+                        <Snackbar open={open} autoHideDuration={10000} onClose={() => setOpen(false)}>
+                            <Alert onClose={() => setOpen(false)} severity="error" sx={{ width: '100%' }}>
+                                {error}
+                            </Alert>
+                        </Snackbar>
                     </Grid>
                     <Grid
                         item

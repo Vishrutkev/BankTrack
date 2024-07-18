@@ -5,9 +5,14 @@ import {
 } from "../../state/plaid/types/token";
 import { BASE_URL } from "../constants";
 
-const getInfo = (): Promise<PlaidItem> => {
+const getInfo = (token: string): Promise<PlaidItem> => {
   return new Promise<PlaidItem>((resolve, reject) => {
-    fetch(`${BASE_URL}/api/info`, { method: "POST" })
+    fetch(`${BASE_URL}/api/info`, {
+      method: "POST",
+      headers: {
+        "X-Auth-Token": token,
+      },
+    })
       .then((res) => {
         if (!res.ok) {
           reject(new Error(`HTTP error! status: ${res.status}`));
@@ -40,7 +45,8 @@ const generateLinkToken = (endpoint: string): Promise<PlaidLinkToken> => {
 };
 
 const exchangePublicTokenForAccessToken = (
-  public_token: string | null
+  public_token: string | null,
+  token: string
 ): Promise<AccessTokenResponse> => {
   return new Promise<AccessTokenResponse>(async (resolve, reject) => {
     try {
@@ -48,6 +54,7 @@ const exchangePublicTokenForAccessToken = (
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          "X-Auth-Token": token,
         },
         body: `public_token=${public_token}`,
       });

@@ -6,7 +6,6 @@ export interface PlaidLinkState {
     isItemAccess: boolean;
     isPaymentInitiation: boolean;
     linkToken: string | null;
-    accessToken: string | null;
     itemId: string | null;
     isError: boolean;
     backend: boolean;

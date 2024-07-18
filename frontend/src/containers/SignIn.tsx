@@ -14,10 +14,19 @@ import IconButton from '@mui/material/IconButton';
 import EmailIcon from '@mui/icons-material/Email';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 import BankTrackLogo from '../assets/banktrack_logo.png';
 import signInCover from '../assets/signInCover.jpg';
 import { useState } from 'react';
+import { signIn } from '../fetch/auth';
+import { Navigate } from 'react-router-dom';
+import Loading from '../component/Loading';
+import Notification from '../component/Notification';
+
+interface SignInData {
+    email: string;
+    password: string;
+}
 
 function Copyright(props: any) {
     return (
@@ -34,10 +43,15 @@ function Copyright(props: any) {
 
 const SignIn = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
-    const [formData, setFormData] = useState<any>({
+    const [formData, setFormData] = useState<SignInData>({
         email: '',
         password: ''
     });
+    const [error, setError] = useState<string>('');
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [redirect, setRedirect] = useState(false);
+    const [successOpen, setSuccessOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -47,12 +61,31 @@ const SignIn = () => {
         });
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log({
-            formData
-        });
-        setFormData({ email: '', password: '' });
+        setLoading(true);
+        signIn(formData.email, formData.password)
+            .then(async (res: any) => {
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    setError(errorData || 'Login failed');
+                    throw new Error(errorData || 'Login failed');
+                }
+                const responseData = await res.json();
+                sessionStorage.setItem('token', responseData.token);
+                sessionStorage.setItem('user_id', responseData.user_id);
+                setErrorOpen(false);
+                setSuccessOpen(true);
+                setTimeout(() => {
+                    setRedirect(true);
+                    setLoading(false);
+                }, 1000);
+                setFormData({ email: '', password: '' });
+            })
+            .catch((error) => {
+                setErrorOpen(true);
+                console.error('Error:', error);
+            });
     };
 
     const handleClickShowPassword = () => {
@@ -73,6 +106,7 @@ const SignIn = () => {
         // <ThemeProvider theme={defaultTheme}>
         <>
             <CssBaseline />
+            {loading && <Loading />}
             <Container component="main" maxWidth="xl" disableGutters sx={{ height: '100vh' }}>
                 <Grid container sx={{ height: '100%' }}>
                     <Grid
@@ -157,6 +191,8 @@ const SignIn = () => {
                                     ),
                                 }}
                             />
+
+
                             <FormControlLabel
                                 control={<Checkbox value="remember" color="primary" />}
                                 label="Remember me"
@@ -183,6 +219,19 @@ const SignIn = () => {
                             </Grid>
                         </Box>
                         <Copyright sx={{ position: 'absolute', bottom: 20 }} />
+                        {redirect && <Navigate to="/dashboard" />}
+                        <Notification
+                            open={successOpen}
+                            message="Login successful! Redirecting..."
+                            severity="success"
+                            onClose={() => setSuccessOpen(false)}
+                        />
+                        <Notification
+                            open={errorOpen}
+                            message={error}
+                            severity="error"
+                            onClose={() => setErrorOpen(false)}
+                        />
                     </Grid>
                     <Grid
                         item

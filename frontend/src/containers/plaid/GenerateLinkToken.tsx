@@ -9,7 +9,8 @@ const GenerateLinkToken = () => {
 
     const fetchInfo = useCallback(() => {
         let paymentInitiation: boolean = false;
-        getInfo()
+        const token = sessionStorage.getItem('token')!;
+        getInfo(token)
             .then(async (data: PlaidItem) => {
                 //const data = await response.json();
 
@@ -36,7 +37,7 @@ const GenerateLinkToken = () => {
         generateLinkToken(endpoint)
             .then(async token => {
                 dispatch({ type: "SET_STATE", state: { linkToken: token.link_token } });
-                localStorage.setItem("link_token", token.link_token);
+                sessionStorage.setItem("link_token", token.link_token);
             })
             .catch((error) => {
                 console.log(error);
@@ -53,7 +54,7 @@ const GenerateLinkToken = () => {
                     dispatch({
                         type: "SET_STATE",
                         state: {
-                            linkToken: localStorage.getItem("link_token"),
+                            linkToken: sessionStorage.getItem("link_token"),
                         },
                     });
                 } else {

@@ -14,7 +14,8 @@ const GenerateTransactions = () => {
 
     const getTransactions = async () => {
         try {
-            const data: TransactionsData = await fetchTransactions();
+            const token = sessionStorage.getItem('token')!;
+            const data: TransactionsData = await fetchTransactions(token);
             setTransData(data.latest_transactions);
         } catch (error) {
             console.error('Error fetching transactions:', error);

@@ -14,7 +14,7 @@ const ConnectToBank = () => {
 
     return (
         <div>
-            {!linkSuccess && !linkToken && <button onClick={handleClick}>Connect My Bank</button>}
+            {!(sessionStorage.getItem('linkSuccess') || linkSuccess) && !linkToken && <button onClick={handleClick}>Connect My Bank</button>}
             {showComponent && (
                 <>
                     <GenerateLinkToken />
@@ -22,7 +22,7 @@ const ConnectToBank = () => {
                 </>
             )}
 
-            {linkSuccess &&
+            {(sessionStorage.getItem('linkSuccess') || linkSuccess) &&
                 <div><h1>Congrats! You've Connected to your bank</h1>
                     <RenderTransactions />
                 </div>}

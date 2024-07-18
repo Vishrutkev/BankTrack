@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { usePlaidLink } from "react-plaid-link";
-import Button from "plaid-threads/Button";
 import { exchangePublicTokenForAccessToken } from "../../fetch/plaid/generateToken";
 import PlaidLinkContext from '../../state/plaid/plaidLinkContext';
 import { AccessTokenResponse } from '../../state/plaid/types/token';
+import TextButton from '../../component/TextButton';
 
 const LaunchLink = () => {
     const { linkToken, isPaymentInitiation, dispatch, isItemAccess, linkSuccess } = useContext(PlaidLinkContext);
@@ -13,13 +13,12 @@ const LaunchLink = () => {
             if (isPaymentInitiation) {
                 dispatch({ type: "SET_STATE", state: { isItemAccess: false } });
             } else {
-                exchangePublicTokenForAccessToken(public_token)
+                const token = sessionStorage.getItem('token')!;
+                exchangePublicTokenForAccessToken(public_token, token)
                     .then(async (data: AccessTokenResponse) => {
                         dispatch({
                             type: "SET_STATE",
                             state: {
-                                itemId: data.item_id,
-                                accessToken: data.access_token,
                                 isItemAccess: true,
                             },
                         });
@@ -29,7 +28,6 @@ const LaunchLink = () => {
                             type: "SET_STATE",
                             state: {
                                 itemId: `no item_id retrieved`,
-                                accessToken: `no access_token retrieved`,
                                 isItemAccess: false,
                             },
                         });
@@ -37,7 +35,7 @@ const LaunchLink = () => {
             }
 
             dispatch({ type: "SET_STATE", state: { linkSuccess: true } });
-            window.history.pushState("", "", "/");
+            sessionStorage.setItem('linkSuccess', "true");
         },
         [dispatch, isPaymentInitiation]
     );
@@ -64,11 +62,8 @@ const LaunchLink = () => {
     }, [ready, open, isOauth]);
 
     return (<div>
-        {!linkSuccess && <Button type="button" large onClick={() => open()} disabled={!ready}>
-            Launch Link
-        </Button>}
+        {!linkSuccess && <TextButton onClick={() => open()} disabled={!ready} label="Launch Link" />}
     </div>
-
     );
 };
 

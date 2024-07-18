@@ -1,8 +1,9 @@
 const jwt = require("jsonwebtoken");
+const winston = require("winston");
 
 function auth(req, res, next) {
-  const token = req.header("x-auth-token");
-
+  const token = req.header("X-Auth-Token");
+  console.log(token);
   if (!token) return res.status(401).send("Access Denied. No token Provided");
 
   try {
@@ -10,6 +11,7 @@ function auth(req, res, next) {
     req.user = decoded;
     next();
   } catch (ex) {
+    winston.error("Invalid token", ex);
     res.status(400).send("Invalid Token");
   }
 }

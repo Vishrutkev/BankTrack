@@ -13,13 +13,13 @@ interface ToggleThemeProviderProps {
 
 const ToggleThemeProvider = ({ children }: ToggleThemeProviderProps) => {
     const [themeMode, setThemeMode] = useState(() => {
-        return localStorage.getItem('themeMode') || 'light';
+        return sessionStorage.getItem('themeMode') || 'light';
     });
 
     const toggleTheme = () => {
         const newThemeMode = themeMode === 'light' ? 'dark' : 'light';
         setThemeMode(newThemeMode);
-        localStorage.setItem('themeMode', newThemeMode);
+        sessionStorage.setItem('themeMode', newThemeMode);
     };
 
     const lightTheme = createTheme({

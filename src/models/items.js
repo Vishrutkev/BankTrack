@@ -2,25 +2,27 @@ const mongoose = require("mongoose");
 const Joi = require("joi");
 
 const itemSchema = mongoose.Schema({
-  user_id: {
-    type: String,
-    required: true,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
   access_token: {
     type: String,
     required: true,
   },
-  bank_name: String,
+  item_id: {
+    type: String,
+    required: true,
+  },
 });
 
 const Item = mongoose.model("Item", itemSchema);
 
 const validateItemSchema = Joi.object({
-  user_id: Joi.string().required(),
   access_token: Joi.string().required(),
+  item_id: Joi.string().required(),
 });
 
-// Validate user function
 function validateItem(item) {
   return validateItemSchema.validate(item);
 }
