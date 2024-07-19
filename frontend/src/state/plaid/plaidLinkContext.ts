@@ -6,7 +6,6 @@ export const initialState: PlaidLinkState = {
   isItemAccess: true,
   isPaymentInitiation: false,
   linkToken: "", // Don't set to null or error message will show up briefly when site loads
-  itemId: null,
   isError: false,
   backend: true,
   products: ["transactions"],

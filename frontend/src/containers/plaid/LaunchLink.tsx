@@ -27,7 +27,6 @@ const LaunchLink = () => {
                         dispatch({
                             type: "SET_STATE",
                             state: {
-                                itemId: `no item_id retrieved`,
                                 isItemAccess: false,
                             },
                         });

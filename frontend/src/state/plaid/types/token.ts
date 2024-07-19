@@ -1,6 +1,4 @@
 export interface PlaidItem {
-  item_id: string;
-  access_token: string;
   products: string[];
 }
 
@@ -11,7 +9,5 @@ export interface PlaidLinkToken {
 }
 
 export interface AccessTokenResponse {
-  access_token: string;
-  item_id: string;
-  error: null | string;
+  user: string;
 }
