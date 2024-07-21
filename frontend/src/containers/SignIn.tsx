@@ -19,7 +19,7 @@ import BankTrackLogo from '../assets/banktrack_logo.png';
 import signInCover from '../assets/signInCover.jpg';
 import { useState } from 'react';
 import { signIn } from '../fetch/auth';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Loading from '../component/Loading';
 import Notification from '../component/Notification';
 
@@ -47,9 +47,9 @@ const SignIn = () => {
         email: '',
         password: ''
     });
-    const [error, setError] = useState<string>('');
+    const navigate = useNavigate();
+    const [errorMessage, setErrorMessage] = useState<string>('');
     const [errorOpen, setErrorOpen] = useState(false);
-    const [redirect, setRedirect] = useState(false);
     const [successOpen, setSuccessOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -63,22 +63,22 @@ const SignIn = () => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setLoading(true);
         signIn(formData.email, formData.password)
             .then(async (res: any) => {
                 if (!res.ok) {
                     const errorData = await res.json();
-                    setError(errorData || 'Login failed');
+                    setErrorMessage(errorData || 'Login failed');
                     throw new Error(errorData || 'Login failed');
                 }
+                setLoading(true);
                 const responseData = await res.json();
                 sessionStorage.setItem('token', responseData.token);
                 sessionStorage.setItem('user_id', responseData.user_id);
                 setErrorOpen(false);
                 setSuccessOpen(true);
                 setTimeout(() => {
-                    setRedirect(true);
                     setLoading(false);
+                    navigate('/dashboard');
                 }, 1000);
                 setFormData({ email: '', password: '' });
             })
@@ -219,7 +219,6 @@ const SignIn = () => {
                             </Grid>
                         </Box>
                         <Copyright sx={{ position: 'absolute', bottom: 20 }} />
-                        {redirect && <Navigate to="/dashboard" />}
                         <Notification
                             open={successOpen}
                             message="Login successful! Redirecting..."
@@ -228,7 +227,7 @@ const SignIn = () => {
                         />
                         <Notification
                             open={errorOpen}
-                            message={error}
+                            message={errorMessage}
                             severity="error"
                             onClose={() => setErrorOpen(false)}
                         />

@@ -25,6 +25,8 @@ const PLAID_REDIRECT_URI = process.env.PLAID_REDIRECT_URI || "";
 
 const PLAID_ANDROID_PACKAGE_NAME = process.env.PLAID_ANDROID_PACKAGE_NAME || "";
 
+const PAYMENT_ID = null;
+
 module.exports = {
   APP_PORT,
   PLAID_ENV,
@@ -34,4 +36,5 @@ module.exports = {
   PLAID_SECRET,
   PLAID_REDIRECT_URI,
   PLAID_ANDROID_PACKAGE_NAME,
+  PAYMENT_ID,
 };

@@ -4,8 +4,11 @@ import { exchangePublicTokenForAccessToken } from "../../fetch/plaid/generateTok
 import PlaidLinkContext from '../../state/plaid/plaidLinkContext';
 import { AccessTokenResponse } from '../../state/plaid/types/token';
 import TextButton from '../../component/TextButton';
+import Notification from '../../component/Notification';
 
 const LaunchLink = () => {
+    const [error, setError] = useState<boolean>(false);
+    const [openNotification, setOpenNotification] = useState<boolean>(false);
     const { linkToken, isPaymentInitiation, dispatch, isItemAccess, linkSuccess } = useContext(PlaidLinkContext);
     const onSuccess = React.useCallback(
         (public_token: string) => {
@@ -22,14 +25,20 @@ const LaunchLink = () => {
                                 isItemAccess: true,
                             },
                         });
+                        setError(false);
+                        setOpenNotification(false);
                     })
                     .catch((err) => {
                         dispatch({
                             type: "SET_STATE",
                             state: {
                                 isItemAccess: false,
+                                linkSuccess: false
                             },
                         });
+                        setError(true);
+                        setOpenNotification(true);
+                        sessionStorage.removeItem('linkSuccess');
                     })
             }
 
@@ -62,6 +71,7 @@ const LaunchLink = () => {
 
     return (<div>
         {!linkSuccess && <TextButton onClick={() => open()} disabled={!ready} label="Launch Link" />}
+        {error && <Notification open={openNotification} message={'Unable to set Access Token, Please try again!'} severity={'error'} onClose={() => setOpenNotification(false)} />}
     </div>
     );
 };

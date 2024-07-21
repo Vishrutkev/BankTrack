@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { getTransactions as fetchTransactions } from '../../fetch/plaid/getTransactions';
 import { Transaction, TransactionsData } from '../../state/plaid/types/transaction';
+import { fetchIncome } from '../../fetch/plaid/generateIncome';
+import fetchTransactions from '../../fetch/plaid/generateTransactions';
 
 const GenerateTransactions = () => {
     const [transData, setTransData] = useState<Transaction[]>([]);
@@ -17,6 +18,7 @@ const GenerateTransactions = () => {
             const token = sessionStorage.getItem('token')!;
             const data: TransactionsData = await fetchTransactions(token);
             setTransData(data.latest_transactions);
+            console.log(JSON.stringify(data));
         } catch (error) {
             console.error('Error fetching transactions:', error);
         }
@@ -28,7 +30,7 @@ const GenerateTransactions = () => {
             <ul>
                 {transData.map((transaction, index) => (
                     <li key={index}>
-                        {transaction.name} - {formatCurrency(transaction.amount, 'USD')} - {transaction.date}
+                        {transaction.category}: {transaction.name} - {formatCurrency(transaction.amount, 'USD')} - {transaction.date}
                     </li>
                 ))}
             </ul>

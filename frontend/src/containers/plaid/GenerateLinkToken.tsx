@@ -1,47 +1,68 @@
 
-import { useCallback, useContext, useEffect } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 import { getInfo, generateLinkToken } from '../../fetch/plaid/generateToken'
 import PlaidLinkContext from '../../state/plaid/plaidLinkContext'
-import { PlaidItem } from '../../state/plaid/types/token';
+import { PlaidItem, PlaidLinkToken } from '../../state/plaid/types/token';
+import Notification from '../../component/Notification';
+import { type } from 'os';
 
-const GenerateLinkToken = () => {
-    const { linkToken, isPaymentInitiation, dispatch } = useContext(PlaidLinkContext);
+interface GenerateLinkTokenProps {
+    isShowComponent: (isShow: boolean) => void;
+    setNotificationError: any
+}
 
-    const fetchInfo = useCallback(() => {
+const GenerateLinkToken = ({ isShowComponent, setNotificationError }: GenerateLinkTokenProps) => {
+    const { dispatch } = useContext(PlaidLinkContext);
+
+    const fetchInfo = useCallback(async () => {
         let paymentInitiation: boolean = false;
         const token = sessionStorage.getItem('token')!;
-        getInfo(token)
-            .then(async (data: PlaidItem) => {
-                //const data = await response.json();
-
-                paymentInitiation = data.products.includes("payment_initiation");
-
-                dispatch({
-                    type: "SET_STATE",
-                    state: {
-                        products: data.products,
-                        isPaymentInitiation: paymentInitiation,
-                    },
-                });
-            })
-            .catch(error => {
-                console.error("Error fetching info:", error);
+        try {
+            const data: PlaidItem = await getInfo(token);
+            paymentInitiation = data.products.includes("payment_initiation");
+            sessionStorage.setItem('infoError', 'false');
+            dispatch({
+                type: "SET_STATE",
+                state: {
+                    products: data.products,
+                    isPaymentInitiation: paymentInitiation,
+                },
             });
-        return paymentInitiation
+        } catch (error) {
+            isShowComponent(false);
+            setNotificationError((prevState: any) => ({
+                ...prevState,
+                openNotification: true,
+                message: 'Error fetching Plaid Products Info!',
+                error: true
+            }));
+            sessionStorage.setItem('infoError', 'true');
+            // You may also choose to re-throw the error if needed
+            console.log("Error fetching Plaid Products Info");
+        }
+        return paymentInitiation;
     }, [dispatch]);
 
-
-    const fetchLinkToken = useCallback((isPaymentInitiation: boolean) => {
+    const fetchLinkToken = useCallback(async (isPaymentInitiation: boolean) => {
         const endpoint = isPaymentInitiation ? '/api/create_link_token_for_payment' : '/api/create_link_token';
-
-        generateLinkToken(endpoint)
-            .then(async token => {
-                dispatch({ type: "SET_STATE", state: { linkToken: token.link_token } });
-                sessionStorage.setItem("link_token", token.link_token);
-            })
-            .catch((error) => {
-                console.log(error);
-            });
+        const token = sessionStorage.getItem('token')!;
+        try {
+            const linkToken: PlaidLinkToken = await generateLinkToken(endpoint, token);
+            dispatch({ type: "SET_STATE", state: { linkToken: linkToken.link_token } });
+            sessionStorage.setItem("link_token", linkToken.link_token);
+        }
+        catch (error) {
+            console.log("errororr");
+            isShowComponent(false);
+            setNotificationError((prevState: any) => ({
+                ...prevState,
+                openNotification: true,
+                message: 'Error fetching Link Token!',
+                error: true
+            }));
+            isShowComponent(false);
+            console.log(error);
+        };
     }, [dispatch]);
 
     useEffect(() => {
@@ -58,7 +79,10 @@ const GenerateLinkToken = () => {
                         },
                     });
                 } else {
-                    fetchLinkToken(isPaymentInitiation);
+                    const infoError = JSON.parse(sessionStorage.getItem('infoError')!);
+                    if (!infoError) {
+                        await fetchLinkToken(isPaymentInitiation);
+                    }
                 }
             } catch (error) {
                 console.error("Error in init:", error);
@@ -68,7 +92,9 @@ const GenerateLinkToken = () => {
     }, [dispatch, fetchInfo, fetchLinkToken]);
 
     return (
-        <div></div>
+        <>
+
+        </>
     )
 }
 

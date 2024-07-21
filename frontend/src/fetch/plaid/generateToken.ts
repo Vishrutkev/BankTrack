@@ -27,9 +27,17 @@ const getInfo = (token: string): Promise<PlaidItem> => {
   });
 };
 
-const generateLinkToken = (endpoint: string): Promise<PlaidLinkToken> => {
+const generateLinkToken = (
+  endpoint: string,
+  token: string
+): Promise<PlaidLinkToken> => {
   return new Promise<PlaidLinkToken>((resolve, reject) => {
-    fetch(BASE_URL + endpoint, { method: "POST" })
+    fetch(BASE_URL + endpoint, {
+      method: "POST",
+      headers: {
+        "X-Auth-Token": token,
+      },
+    })
       .then((res) => {
         if (!res.ok) {
           reject(new Error(`HTTP error! status: ${res.status}`));

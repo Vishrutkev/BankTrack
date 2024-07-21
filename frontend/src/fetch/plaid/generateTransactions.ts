@@ -1,7 +1,7 @@
 import { TransactionsData } from "../../state/plaid/types/transaction";
 import { BASE_URL } from "../constants";
 
-const getTransactions = (token: string) => {
+const fetchTransactions = (token: string) => {
   return new Promise<TransactionsData>((resolve, reject) => {
     fetch(`${BASE_URL}/api/transactions`, {
       method: "GET",
@@ -23,4 +23,4 @@ const getTransactions = (token: string) => {
   });
 };
 
-export { getTransactions };
+export default fetchTransactions;

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { checkAuth } from '../fetch/auth';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import Loading from '../component/Loading';
+import useAutoLogout from '../hooks/useAutoLogout';
+import Notification from '../component/Notification';
 
 interface Props {
     children: ReactNode;
@@ -10,7 +12,19 @@ interface Props {
 const AuthWrapper = ({ children }: Props) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string>('');
+    const navigate = useNavigate();
+
+    const logout = () => {
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('link_token');
+        sessionStorage.removeItem('user_id');
+        sessionStorage.removeItem('linkSuccess');
+        navigate("/signIn");
+    };
+
+    const timeOut = 15 * 60 * 1000;
+
+    const { open, remainingTime, setOpen } = useAutoLogout(timeOut, logout); // Auto logout after 15 minutes of user inactivity
 
     useEffect(() => {
         const token = sessionStorage.getItem('token');
@@ -26,7 +40,6 @@ const AuthWrapper = ({ children }: Props) => {
                 })
                 .catch((error) => {
                     console.error(error.message);
-                    setError(error.message);
                     setIsAuthenticated(false);
                 });
         } else {
@@ -47,6 +60,12 @@ const AuthWrapper = ({ children }: Props) => {
         <>
             {loading && <Loading />}
             {children}
+            <Notification
+                open={open}
+                message={`Are you there? Your session will timeout in ${Math.ceil(remainingTime / 1000 / 60)} minutes`}
+                severity={"error"}
+                onClose={() => setOpen(false)}
+            />
         </>
     );
 }

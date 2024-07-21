@@ -20,7 +20,7 @@ import signInCover from '../assets/signInCover.jpg';
 import { useState } from 'react';
 import { signUp } from '../fetch/auth';
 import { Alert, Snackbar } from '@mui/material';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Loading from '../component/Loading';
 
 function Copyright(props: any) {
@@ -40,13 +40,13 @@ const SignUp = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string>('');
     const [open, setOpen] = useState(false);
-    const [redirect, setRedirect] = useState(false);
     const [successOpen, setSuccessOpen] = useState(false);
     const [formData, setFormData] = useState<any>({
         name: '',
         email: '',
         password: ''
     });
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
     const handleChange = (event: any) => {
@@ -59,7 +59,6 @@ const SignUp = () => {
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setLoading(true);
         signUp(formData.name, formData.email, formData.password)
             .then(async (res: any) => {
                 if (!res.ok) {
@@ -67,11 +66,12 @@ const SignUp = () => {
                     setError(errorData || 'SignUp failed');
                     throw new Error(errorData || 'SignUp failed');
                 }
+                setLoading(true);
                 const responseData = await res.json();
                 setOpen(false);
                 setSuccessOpen(true);
                 setTimeout(() => {
-                    setRedirect(true);
+                    navigate('/dashboard');
                     setLoading(false);
                 }, 1000);
                 setFormData({ name: '', email: '', password: '' });
@@ -222,7 +222,6 @@ const SignUp = () => {
                             </Grid>
                         </Box>
                         <Copyright sx={{ position: 'absolute', bottom: 16 }} />
-                        {redirect && <Navigate to="/dashboard" />}
                         <Snackbar open={successOpen} autoHideDuration={2000} onClose={() => setSuccessOpen(false)}>
                             <Alert onClose={() => setSuccessOpen(false)} severity="success" sx={{ width: '100%' }}>
                                 Login successful! Redirecting...
