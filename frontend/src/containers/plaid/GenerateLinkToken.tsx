@@ -3,8 +3,10 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import { getInfo, generateLinkToken } from '../../fetch/plaid/generateToken'
 import PlaidLinkContext from '../../state/plaid/plaidLinkContext'
 import { PlaidItem, PlaidLinkToken } from '../../state/plaid/types/token';
-import Notification from '../../component/Notification';
+import Notification from '../../components/Notification';
 import { type } from 'os';
+import useAuth from '../../hooks/useAuth';
+
 
 interface GenerateLinkTokenProps {
     isShowComponent: (isShow: boolean) => void;
@@ -13,10 +15,11 @@ interface GenerateLinkTokenProps {
 
 const GenerateLinkToken = ({ isShowComponent, setNotificationError }: GenerateLinkTokenProps) => {
     const { dispatch } = useContext(PlaidLinkContext);
-
+    const { user } = useAuth();
     const fetchInfo = useCallback(async () => {
         let paymentInitiation: boolean = false;
-        const token = sessionStorage.getItem('token')!;
+        const token = user.token;
+        //const token = sessionStorage.getItem('token')!;
         try {
             const data: PlaidItem = await getInfo(token);
             paymentInitiation = data.products.includes("payment_initiation");
@@ -45,7 +48,8 @@ const GenerateLinkToken = ({ isShowComponent, setNotificationError }: GenerateLi
 
     const fetchLinkToken = useCallback(async (isPaymentInitiation: boolean) => {
         const endpoint = isPaymentInitiation ? '/api/create_link_token_for_payment' : '/api/create_link_token';
-        const token = sessionStorage.getItem('token')!;
+        const token = user.token;
+        //const token = sessionStorage.getItem('token')!;
         try {
             const linkToken: PlaidLinkToken = await generateLinkToken(endpoint, token);
             dispatch({ type: "SET_STATE", state: { linkToken: linkToken.link_token } });

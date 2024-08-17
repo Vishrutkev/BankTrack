@@ -3,7 +3,7 @@ import GenerateLinkToken from './GenerateLinkToken'
 import LaunchLink from './LaunchLink'
 import PlaidLinkContext from '../../state/plaid/plaidLinkContext'
 import RenderTransactions from './GenerateTransactions'
-import Notification from '../../component/Notification';
+import Notification from '../../components/Notification';
 
 const ConnectToBank = () => {
     const { linkSuccess, linkToken } = useContext(PlaidLinkContext)

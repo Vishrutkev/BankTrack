@@ -4,18 +4,14 @@ import App from '../App';
 import SignUp from '../containers/SignUp';
 import SignIn from '../containers/SignIn';
 import AuthWrapper from '../state/AuthWrapper';
+import { AuthProvider } from '../state/Auth/AuthProvider';
 
 
 const router = createBrowserRouter([
-    {
-        path: '/dashboard',
-        element: <AuthWrapper>
-            <App />
-        </AuthWrapper>
-    },
     { path: '/signUp', element: <SignUp /> },
-    { path: '/', element: <Navigate to="/signIn" /> },
+    { path: '/dashboard', element: <App /> },
     { path: '/signIn', element: <SignIn /> },
+    { path: '/', element: <Navigate to="/signIn" /> }
 ]);
 
 const AppRouter = () => (

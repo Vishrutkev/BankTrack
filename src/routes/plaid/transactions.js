@@ -57,7 +57,7 @@ router.get(
       }
 
       // Return the 8 most recent transactions
-      const recently_added = added.sort(compareTxnsByDateAscending).slice(-8);
+      const recently_added = added.sort(compareTxnsByDateAscending).slice(-28);
 
       response.json({ latest_transactions: recently_added });
     } catch (error) {

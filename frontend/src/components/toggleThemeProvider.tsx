@@ -67,7 +67,7 @@ const ToggleThemeProvider = ({ children }: ToggleThemeProviderProps) => {
             <CssBaseline />
             <IconButton
                 onClick={toggleTheme}
-                sx={{ position: 'fixed', top: 16, right: 16, zIndex: 1000 }}
+                sx={{ position: 'fixed', top: 13, right: 52, zIndex: 1000000 }}
             >
                 {themeMode === 'light' ? <Brightness4Icon /> : <Brightness7Icon />}
             </IconButton>

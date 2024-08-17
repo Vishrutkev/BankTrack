@@ -18,13 +18,28 @@ router.post("/", validator(validate), async (req, res) => {
     return res.status(400).send(JSON.stringify("User already registered"));
 
   user = new User(_.pick(req.body, ["name", "email", "password"]));
+  winston.info(user);
   const salt = await bcrypt.genSalt(10);
+  winston.info("salt");
+  winston.info(salt);
   user.password = await bcrypt.hash(user.password, salt);
-  await user.save();
+  try {
+    await user.save();
+  } catch (ex) {
+    winston.error(ex);
+  }
+
+  winston.info("Herer");
   const token = user.generateAuthToken();
-  res
-    .header("x-auth-token", token)
-    .send(_.pick(user, JSON.stringify(["_id", "name", "email"])));
+  const data = {
+    user_id: user._id,
+    name: user.name,
+    token,
+  };
+  res.header("x-auth-token", token).send(JSON.stringify(data));
+  // res
+  //   .header("x-auth-token", token)
+  //   .send(_.pick(user, JSON.stringify(["_id", "name", "email"])));
 });
 
 module.exports = router;

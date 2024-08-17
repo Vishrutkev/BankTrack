@@ -17,11 +17,12 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import BankTrackLogo from '../assets/banktrack_logo.png';
 import PersonIcon from '@mui/icons-material/Person';
 import signInCover from '../assets/signInCover.jpg';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { signUp } from '../fetch/auth';
 import { Alert, Snackbar } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import Loading from '../component/Loading';
+import Loading from '../components/Loading';
+import useAuth from '../hooks/useAuth';
 
 function Copyright(props: any) {
     return (
@@ -40,6 +41,7 @@ const SignUp = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string>('');
     const [open, setOpen] = useState(false);
+    const { user, dispatch } = useAuth();
     const [successOpen, setSuccessOpen] = useState(false);
     const [formData, setFormData] = useState<any>({
         name: '',
@@ -49,6 +51,12 @@ const SignUp = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (user.isAuthenticated) {
+            navigate('./dashboard');
+        }
+    }, []);
+
     const handleChange = (event: any) => {
         const { name, value } = event.target;
         setFormData({
@@ -57,7 +65,7 @@ const SignUp = () => {
         });
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         signUp(formData.name, formData.email, formData.password)
             .then(async (res: any) => {
@@ -67,7 +75,12 @@ const SignUp = () => {
                     throw new Error(errorData || 'SignUp failed');
                 }
                 setLoading(true);
+                console.log(res);
                 const responseData = await res.json();
+                console.log(responseData);
+                sessionStorage.setItem('token', responseData.token);
+                sessionStorage.setItem('user_id', responseData.user_id);
+                dispatch({ type: 'LOGIN', userName: responseData.name, token: responseData.token, id: responseData.user_id, isAuthenticated: true });
                 setOpen(false);
                 setSuccessOpen(true);
                 setTimeout(() => {

@@ -18,6 +18,7 @@ router.post("/", validator(validate), async (req, res) => {
   const token = user.generateAuthToken();
   const data = {
     user_id: user._id,
+    name: user.name,
     token,
   };
   res.send(JSON.stringify(data));

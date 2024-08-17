@@ -17,11 +17,12 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { createTheme } from '@mui/material/styles';
 import BankTrackLogo from '../assets/banktrack_logo.png';
 import signInCover from '../assets/signInCover.jpg';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { signIn } from '../fetch/auth';
 import { useNavigate } from 'react-router-dom';
-import Loading from '../component/Loading';
-import Notification from '../component/Notification';
+import Loading from '../components/Loading';
+import Notification from '../components/Notification';
+import useAuth from '../hooks/useAuth';
 
 interface SignInData {
     email: string;
@@ -47,11 +48,18 @@ const SignIn = () => {
         email: '',
         password: ''
     });
+    const { user, dispatch } = useAuth();
     const navigate = useNavigate();
     const [errorMessage, setErrorMessage] = useState<string>('');
     const [errorOpen, setErrorOpen] = useState(false);
     const [successOpen, setSuccessOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (user.isAuthenticated) {
+            navigate('./dashboard');
+        }
+    }, []);
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -74,12 +82,14 @@ const SignIn = () => {
                 const responseData = await res.json();
                 sessionStorage.setItem('token', responseData.token);
                 sessionStorage.setItem('user_id', responseData.user_id);
+                dispatch({ type: 'LOGIN', userName: responseData.name, token: responseData.token, id: responseData.user_id, isAuthenticated: true });
                 setErrorOpen(false);
                 setSuccessOpen(true);
                 setTimeout(() => {
                     setLoading(false);
                     navigate('/dashboard');
                 }, 1000);
+
                 setFormData({ email: '', password: '' });
             })
             .catch((error) => {

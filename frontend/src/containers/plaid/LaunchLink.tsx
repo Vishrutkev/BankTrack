@@ -3,12 +3,14 @@ import { usePlaidLink } from "react-plaid-link";
 import { exchangePublicTokenForAccessToken } from "../../fetch/plaid/generateToken";
 import PlaidLinkContext from '../../state/plaid/plaidLinkContext';
 import { AccessTokenResponse } from '../../state/plaid/types/token';
-import TextButton from '../../component/TextButton';
-import Notification from '../../component/Notification';
+import TextButton from '../../components/TextButton';
+import Notification from '../../components/Notification';
+import useAuth from '../../hooks/useAuth';
 
 const LaunchLink = () => {
     const [error, setError] = useState<boolean>(false);
     const [openNotification, setOpenNotification] = useState<boolean>(false);
+    const { user } = useAuth();
     const { linkToken, isPaymentInitiation, dispatch, isItemAccess, linkSuccess } = useContext(PlaidLinkContext);
     const onSuccess = React.useCallback(
         (public_token: string) => {
@@ -16,7 +18,8 @@ const LaunchLink = () => {
             if (isPaymentInitiation) {
                 dispatch({ type: "SET_STATE", state: { isItemAccess: false } });
             } else {
-                const token = sessionStorage.getItem('token')!;
+                const token = user.token;
+                //const token = sessionStorage.getItem('token')!;
                 exchangePublicTokenForAccessToken(public_token, token)
                     .then(async (data: AccessTokenResponse) => {
                         dispatch({

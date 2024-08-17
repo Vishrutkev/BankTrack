@@ -1,19 +1,21 @@
 import PlaidProvider from './state/plaid/PlaidProvider';
-import ConnectToBank from './containers/plaid/ConnectToBank';
-import SignIn from './containers/SignIn';
-import { createTheme } from '@mui/material';
-import { useState } from 'react';
-import ToggleTheme from './component/toggleThemeProvider';
+import Dashboard from './containers/dashboard';
+import { AuthProvider } from './state/Auth/AuthProvider';
 import AuthWrapper from './state/AuthWrapper';
+import { useNavigate } from 'react-router-dom';
+import useAuth from './hooks/useAuth';
+import { useEffect } from 'react';
 
 function App() {
 
   return (
     <div className="App">
       <PlaidProvider>
-        <ConnectToBank />
+        <AuthWrapper>
+          <Dashboard />
+        </AuthWrapper>
       </PlaidProvider>
-    </div >
+    </div>
   );
 }
 

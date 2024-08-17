@@ -3,16 +3,17 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import AppRouter from './routes/routes';
-import ToggleThemeProvider from './component/toggleThemeProvider';
+import { AuthProvider } from './state/Auth/AuthProvider';
+import AuthWrapper from './state/AuthWrapper';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <ToggleThemeProvider>
+    <AuthProvider>
       <AppRouter />
-    </ToggleThemeProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
 
